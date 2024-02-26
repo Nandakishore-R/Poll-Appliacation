@@ -44,16 +44,16 @@ public class PollApp {
             for(ch = mainMenu();ch!=3;ch=mainMenu()){
                 switch (ch) {
                     case 1:
-                        System.out.print("Enter username : ");
-                        uname = s.nextLine();
+                        System.out.print("Enter email : ");
+                        email = s.nextLine();
                         System.out.print("Enter password : ");
                         pass = s.nextLine();
-                        str = "select * from tbl_user where username='"+uname+"' and password = '"+pass+"'";
+                        str = "select * from tbl_user where email='"+email+"' and password = '"+pass+"'";
                         sout.writeUTF("select");
                         sout.writeUTF(str);
                         if(sin.readBoolean()){
                             clearConsole();
-                            System.out.println("Welcome "+uname);
+                            System.out.println("Welcome ");
                         }
                         else
                         System.out.println("Wrong Details!!");
@@ -69,7 +69,7 @@ public class PollApp {
                         sout.writeUTF("select");
                         sout.writeUTF(str);
                         if(!sin.readBoolean()){
-                            str = "insert into tbl_user values('"+uname+"', '"+pass+"')";
+                            str = "insert into tbl_user(username, email, password) values('"+uname+"', '"+email+"','"+pass+"')";
                             sout.writeUTF("insert");
                             sout.writeUTF(str);
                             System.out.println("User Succesfully registered");
