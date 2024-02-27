@@ -17,8 +17,8 @@ class DBConnect{
           System.out.println("Error "+e);
        }
     }
-
 }
+
 class ClientHandler extends Thread{
     private Socket clientSocket;
     private DBConnect dbcon;
@@ -38,6 +38,17 @@ class ClientHandler extends Thread{
                     System.out.println(str);
                     dbcon.st.executeUpdate(str);
                 }
+                else if(str.equals("poll_insert")){
+                    str = sin.readUTF();
+                    System.out.println(str);
+                    String arr[] = {"poll_id"};
+                    int ar = dbcon.st.executeUpdate(str, dbcon.st.RETURN_GENERATED_KEYS);
+                    System.out.println("hi");
+                    ResultSet rs = dbcon.st.getGeneratedKeys();
+                    rs.next();
+                    int id = rs.getInt(1);
+                    sout.writeInt(id);
+                }
                 if(str.equals("select")){
                     str = sin.readUTF();
                     System.out.println(str);
@@ -47,7 +58,44 @@ class ClientHandler extends Thread{
                     else
                         sout.writeBoolean(false);
                 }
-            }
+                if(str.equals("select-poll")){
+                    str = sin.readUTF();
+                    System.out.println(str);
+                    ResultSet rs = dbcon.st.executeQuery(str);
+                    if(rs.next()){
+                        sout.writeBoolean(true);
+                        sout.writeUTF(rs.getString("poll_question"));
+                        rs = dbcon.st.executeQuery("select * from tbl_options where poll_id = "+rs.getString("poll_id"));
+                        int rowCount = 0;
+                        while(rs.next()) {
+                            rowCount++;
+                        }
+                        rs.first();
+                        System.out.println(rowCount);
+                        sout.writeInt(rowCount);
+                        do{
+                            sout.writeUTF(rs.getString("option_value"));
+                        }while(rs.next());
+                        if(sin.readInt() == 1){
+                            rs.first();
+                            do{
+                                sout.writeInt(rs.getInt("votes"));
+                            }while(rs.next());
+                        }
+                        
+                    }
+                    else
+                        sout.writeBoolean(false);
+                }
+                if(str.equals("vote")){
+                    str = sin.readUTF();
+                    // int id = sin.readInt();
+                    System.out.println(str);
+                    dbcon.st.executeUpdate(str);
+                    // ResultSet rs = dbcon.st.executeQuery("select * from tbl_options where poll_id = "+id);
+                    
+                }
+        }
 
         } catch (IOException  | SQLException e) {
             System.out.println("Error handling client: " + e.getMessage());
